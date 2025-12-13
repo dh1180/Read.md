@@ -1,0 +1,36 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ===== Virtual Environment =====
+venv/
+.env/
+.env.*
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+*.log
+
+# ===== FastAPI / Uvicorn =====
+*.pid
+
+# ===== Test / Cache =====
+.pytest_cache/
+.mypy_cache/
+
+# ===== SQLite =====
+*.db
+*.sqlite3
+
+# ===== Markdown Render Cache (optional) =====
+*.html
