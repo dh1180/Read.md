@@ -60,7 +60,7 @@ def update_review(review_id: int, title: str, book_title: str, content: str, aut
     if review is None:
         raise HTTPException(status_code=404, detail="Review not found")
     review.title = title
-    review.book_title = title
+    review.book_title = book_title
     review.content = content
     review.author = author
     session.commit()
