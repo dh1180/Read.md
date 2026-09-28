@@ -39,8 +39,21 @@ builder.Services.AddDbContext<ReadmeDbContext>(options =>
                       !string.IsNullOrWhiteSpace(sqlServerConn) &&
                       (builder.Environment.IsDevelopment() || !sqlServerConn.Contains("(localdb)", StringComparison.OrdinalIgnoreCase));
 
-    if (isSqlServer) options.UseSqlServer(sqlServerConn);
-    else options.UseSqlite(sqliteConn);
+    if (isSqlServer)
+    {
+        options.UseSqlServer(sqlServerConn, sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 6,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+            sqlOptions.CommandTimeout(60);
+        });
+    }
+    else
+    {
+        options.UseSqlite(sqliteConn);
+    }
 });
 
 builder.Services.AddHttpClient<IBookSearchService, KakaoBookSearchService>();
@@ -58,17 +71,7 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ReadmeDbContext>();
         context.Database.EnsureCreated();
 
-        var dummyReviewers = new[] { "지혜로운산책자", "따뜻한라떼", "새벽네시", "기록하는개발자" };
-        var dummyReviews = context.UserBooks.Where(ub => dummyReviewers.Contains(ub.ReviewerName)).ToList();
-        if (dummyReviews.Any())
-        {
-            context.UserBooks.RemoveRange(dummyReviews);
-            context.SaveChanges();
-            logger.LogInformation("기존 더미 독서록 {Count}건 삭제 완료.", dummyReviews.Count);
-        }
-
-        ReadmeDbContext.SeedSampleData(context);
-        logger.LogInformation("데이터베이스 초기화 준비 완료.");
+        logger.LogInformation("데이터베이스 연결 및 초기화 확인 완료.");
     }
     catch (SqlException ex) { logger.LogWarning("MS SQL Server 연결 실패({Message}).", ex.Message); }
     catch (Exception ex) { logger.LogError(ex, "데이터베이스 초기화 중 오류 발생."); }
