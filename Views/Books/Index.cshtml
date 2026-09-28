@@ -34,6 +34,8 @@
            class="btn btn-sm rounded-pill px-3 @(currentStatus == "wishlist" ? "btn-primary" : "btn-soft")">읽고 싶은 책</a>
         <a asp-action="Index" asp-route-status="reading" asp-route-sort="@currentSort" asp-route-query="@searchQuery"
            class="btn btn-sm rounded-pill px-3 @(currentStatus == "reading" ? "btn-primary" : "btn-soft")">읽는 중</a>
+        <a asp-action="Index" asp-route-status="draft" asp-route-sort="@currentSort" asp-route-query="@searchQuery"
+           class="btn btn-sm rounded-pill px-3 @(currentStatus == "draft" ? "btn-primary" : "btn-soft")">임시 저장</a>
         <a asp-action="Index" asp-route-status="completed" asp-route-sort="@currentSort" asp-route-query="@searchQuery"
            class="btn btn-sm rounded-pill px-3 @(currentStatus == "completed" ? "btn-primary" : "btn-soft")">완독</a>
     </div>
@@ -77,12 +79,16 @@ else
             {
                 ReadingStatus.Wishlist => "읽고 싶은 책",
                 ReadingStatus.Reading => "읽는 중",
+                ReadingStatus.Draft => "임시 저장",
+                ReadingStatus.Paused => "잠시 중단",
                 _ => "완독"
             };
             var statusClass = item.Status switch
             {
                 ReadingStatus.Wishlist => "status-wishlist",
                 ReadingStatus.Reading => "status-reading",
+                ReadingStatus.Draft => "status-draft",
+                ReadingStatus.Paused => "status-paused",
                 _ => "status-completed"
             };
 
@@ -129,7 +135,12 @@ else
                         <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top">
                             <span class="text-muted small">@item.UpdatedAt.ToString("yyyy.MM.dd")</span>
                             <div class="d-flex gap-1">
-                                @if (item.Status == ReadingStatus.Completed && !string.IsNullOrWhiteSpace(item.Content))
+                                @if (item.Status == ReadingStatus.Draft)
+                                {
+                                    <a asp-action="Create" asp-route-draftId="@item.Id"
+                                       class="btn btn-sm btn-primary rounded-pill px-3">이어쓰기</a>
+                                }
+                                else if (item.Status == ReadingStatus.Completed && !string.IsNullOrWhiteSpace(item.Content))
                                 {
                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-soft rounded-pill px-3">기록 보기</a>
                                 }

@@ -40,6 +40,10 @@ public class BooksController : Controller
         {
             bookReviewsQuery = bookReviewsQuery.Where(ub => ub.Status == ReadingStatus.Reading);
         }
+        else if (status.Equals("draft", StringComparison.OrdinalIgnoreCase))
+        {
+            bookReviewsQuery = bookReviewsQuery.Where(ub => ub.Status == ReadingStatus.Draft);
+        }
         else if (status.Equals("completed", StringComparison.OrdinalIgnoreCase))
         {
             bookReviewsQuery = bookReviewsQuery.Where(ub => ub.Status == ReadingStatus.Completed);
@@ -93,23 +97,69 @@ public class BooksController : Controller
             .FirstOrDefaultAsync(ub => ub.Id == id);
 
         if (userBook == null) return NotFound();
+
+        if (userBook.Status != ReadingStatus.Completed && !IsOwner(userBook))
+        {
+            return NotFound();
+        }
+
         return View(userBook);
     }
 
     [Authorize]
     [HttpGet]
-    public IActionResult Create(string? isbn = null, string? title = null, string? author = null, string? cover = null)
+    public async Task<IActionResult> Create(
+        int? draftId = null,
+        string? isbn = null,
+        string? title = null,
+        string? author = null,
+        string? cover = null)
     {
+        var reviewerName = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(reviewerName)) return Challenge();
+
+        if (draftId.HasValue)
+        {
+            var draft = await _context.UserBooks
+                .Include(ub => ub.Book)
+                .FirstOrDefaultAsync(ub => ub.Id == draftId.Value && ub.Status == ReadingStatus.Draft);
+
+            if (draft == null || !IsOwner(draft))
+            {
+                return NotFound();
+            }
+
+            var draftModel = new CreateReviewRequest
+            {
+                DraftId = draft.Id,
+                Isbn = draft.Book?.Isbn ?? string.Empty,
+                Title = draft.Book?.Title ?? string.Empty,
+                Author = draft.Book?.Author ?? string.Empty,
+                Publisher = draft.Book?.Publisher ?? string.Empty,
+                CoverImageUrl = draft.Book?.CoverImageUrl ?? string.Empty,
+                Description = draft.Book?.Description ?? string.Empty,
+                ReviewerName = reviewerName,
+                Rating = draft.Rating,
+                Summary = draft.Summary,
+                Quote = draft.Quote,
+                Content = draft.Content ?? string.Empty,
+                ReadDate = draft.ReadDate
+            };
+
+            return View(draftModel);
+        }
+
         var model = new CreateReviewRequest
         {
             Isbn = isbn ?? string.Empty,
             Title = title ?? string.Empty,
             Author = author ?? string.Empty,
             CoverImageUrl = cover ?? string.Empty,
-            ReviewerName = User.Identity?.Name ?? "독서가",
+            ReviewerName = reviewerName,
             Rating = 5,
             ReadDate = DateTime.Today
         };
+
         return View(model);
     }
 
@@ -144,6 +194,81 @@ public class BooksController : Controller
             _logger.LogError(ex, "독서록 작성 중 오류 발생");
             ModelState.AddModelError(string.Empty, "독서록 저장 중 오류가 발생했습니다.");
             return View(request);
+        }
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> SaveDraft([FromBody] CreateReviewRequest? request)
+    {
+        if (request == null || string.IsNullOrWhiteSpace(request.Title))
+        {
+            return Json(ApiResponse<object>.Fail("임시 저장하려면 먼저 책을 선택해 주세요."));
+        }
+
+        try
+        {
+            var reviewer = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(reviewer)) return Unauthorized();
+
+            var normalizedReviewer = reviewer.Length > 50 ? reviewer[..50] : reviewer;
+            var book = await FindOrCreateBookAsync(request);
+
+            UserBook? userBook = null;
+
+            if (request.DraftId.HasValue)
+            {
+                userBook = await _context.UserBooks.FirstOrDefaultAsync(ub =>
+                    ub.Id == request.DraftId.Value &&
+                    ub.ReviewerName == normalizedReviewer &&
+                    ub.Status == ReadingStatus.Draft);
+
+                if (userBook == null)
+                {
+                    return Json(ApiResponse<object>.Fail("임시 저장된 독서록을 찾을 수 없습니다."));
+                }
+            }
+            else
+            {
+                userBook = await _context.UserBooks.FirstOrDefaultAsync(ub =>
+                    ub.BookId == book.Id &&
+                    ub.ReviewerName == normalizedReviewer &&
+                    (ub.Status == ReadingStatus.Draft || ub.Status == ReadingStatus.Wishlist));
+            }
+
+            if (userBook == null)
+            {
+                userBook = new UserBook
+                {
+                    BookId = book.Id,
+                    ReviewerName = normalizedReviewer,
+                    LikesCount = 0,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.UserBooks.Add(userBook);
+            }
+
+            userBook.BookId = book.Id;
+            userBook.Rating = Math.Clamp(request.Rating, 1, 5);
+            userBook.Summary = TrimTo(request.Summary, 200);
+            userBook.Quote = TrimTo(request.Quote, 500);
+            userBook.Content = TrimTo(request.Content, 4000);
+            userBook.ReadDate = request.ReadDate ?? DateTime.Today;
+            userBook.Status = ReadingStatus.Draft;
+            userBook.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Json(ApiResponse<object>.Ok(new
+            {
+                draftId = userBook.Id,
+                updatedAt = userBook.UpdatedAt.ToLocalTime().ToString("yyyy.MM.dd HH:mm")
+            }, "임시 저장했습니다."));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "독서록 임시 저장 중 오류 발생");
+            return Json(ApiResponse<object>.Fail("임시 저장 중 오류가 발생했습니다."));
         }
     }
 
@@ -232,10 +357,27 @@ public class BooksController : Controller
     private async Task<UserBook> CreateOrUpdateReviewAsync(Book book, string reviewer, CreateReviewRequest request)
     {
         var normalizedReviewer = reviewer.Length > 50 ? reviewer[..50] : reviewer;
-        var userBook = await _context.UserBooks.FirstOrDefaultAsync(ub =>
-            ub.BookId == book.Id &&
-            ub.ReviewerName == normalizedReviewer &&
-            ub.Status != ReadingStatus.Completed);
+        UserBook? userBook = null;
+
+        if (request.DraftId.HasValue)
+        {
+            userBook = await _context.UserBooks.FirstOrDefaultAsync(ub =>
+                ub.Id == request.DraftId.Value &&
+                ub.ReviewerName == normalizedReviewer &&
+                ub.Status == ReadingStatus.Draft);
+
+            if (userBook == null)
+            {
+                throw new InvalidOperationException("임시 저장된 독서록을 찾을 수 없습니다.");
+            }
+        }
+        else
+        {
+            userBook = await _context.UserBooks.FirstOrDefaultAsync(ub =>
+                ub.BookId == book.Id &&
+                ub.ReviewerName == normalizedReviewer &&
+                ub.Status != ReadingStatus.Completed);
+        }
 
         if (userBook == null)
         {
@@ -249,6 +391,7 @@ public class BooksController : Controller
             _context.UserBooks.Add(userBook);
         }
 
+        userBook.BookId = book.Id;
         userBook.Rating = Math.Clamp(request.Rating, 1, 5);
         userBook.Summary = TrimTo(request.Summary, 200);
         userBook.Quote = TrimTo(request.Quote, 500);

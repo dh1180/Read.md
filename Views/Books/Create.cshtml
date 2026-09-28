@@ -1,6 +1,7 @@
 @model ReadMeApp.Models.ViewModels.CreateReviewRequest
 @{
-    ViewData["Title"] = "새 독서록 작성";
+    var isDraft = Model.DraftId.HasValue;
+    ViewData["Title"] = isDraft ? "임시 저장 독서록 이어쓰기" : "새 독서록 작성";
 }
 
 <div class="container py-4" style="max-width: 820px;">
@@ -13,8 +14,10 @@
 
     <!-- Header -->
     <div class="mb-4 pb-3 border-bottom">
-        <h2 class="fw-bold text-dark mb-1">새 독서록 작성하기</h2>
-        <p class="text-muted small mb-0">읽은 책을 검색하고, 마음에 남은 생각과 문장을 자유롭게 기록해 보세요.</p>
+        <h2 class="fw-bold text-dark mb-1">@(isDraft ? "임시 저장 독서록 이어쓰기" : "새 독서록 작성하기")</h2>
+        <p class="text-muted small mb-0">
+            @(isDraft ? "저장해 둔 내용을 이어서 작성하고 완성되면 독서록을 등록해 보세요." : "읽은 책을 검색하고, 마음에 남은 생각과 문장을 자유롭게 기록해 보세요.")
+        </p>
     </div>
 
     <form asp-action="Create" method="post" id="createReviewForm">
@@ -99,6 +102,7 @@
             </div>
 
             <!-- Hidden Inputs Bound to Model -->
+            <input type="hidden" asp-for="DraftId" id="inputDraftId" />
             <input type="hidden" asp-for="Isbn" id="inputIsbn" />
             <input type="hidden" asp-for="Title" id="inputTitle" />
             <input type="hidden" asp-for="Author" id="inputAuthor" />
@@ -127,7 +131,7 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="ReadDate" class="form-label small fw-semibold text-secondary">완독일</label>
-                    <input asp-for="ReadDate" type="date" class="form-control rounded-3" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    <input asp-for="ReadDate" type="date" class="form-control rounded-3" value="@((Model.ReadDate ?? DateTime.Today).ToString("yyyy-MM-dd"))" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-semibold text-secondary">별점 주기</label>
@@ -140,7 +144,7 @@
                             <i class="bi bi-star-fill star-pick active" data-value="5"></i>
                         </div>
                         <span class="fw-bold text-dark small" id="lblRatingDescription">5.0점 (최고예요!)</span>
-                        <input type="hidden" asp-for="Rating" id="inputReviewRating" value="5" />
+                        <input type="hidden" asp-for="Rating" id="inputReviewRating" value="@Model.Rating" />
                     </div>
                 </div>
             </div>
@@ -234,13 +238,24 @@
         </div>
 
         <!-- Submit Bar -->
-        <div class="d-flex justify-content-between align-items-center pt-2 mb-5">
-            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
-                취소하고 돌아가기
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 pt-2 mb-5">
+            <a asp-controller="Books" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                취소하고 내 기록으로
             </a>
-            <button type="submit" class="btn btn-primary-gradient rounded-pill px-5 py-2 fw-semibold shadow">
-                <i class="bi bi-check2-circle me-1"></i> 독서록 등록하기
-            </button>
+            <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
+                <span id="draftSaveStatus" class="text-muted small">
+                    @if (isDraft)
+                    {
+                        <span><i class="bi bi-check2 me-1"></i>임시 저장된 글</span>
+                    }
+                </span>
+                <button type="button" id="btnSaveDraft" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
+                    <i class="bi bi-cloud-arrow-down me-1"></i> 임시 저장
+                </button>
+                <button type="submit" class="btn btn-primary-gradient rounded-pill px-5 py-2 fw-semibold shadow">
+                    <i class="bi bi-check2-circle me-1"></i> 독서록 등록하기
+                </button>
+            </div>
         </div>
     </form>
 </div>
@@ -396,6 +411,19 @@
             });
         });
 
+        const initialRating = parseInt(inputRating.value) || 5;
+        lblRating.textContent = starLabels[initialRating] || `${initialRating}.0점`;
+        starPicks.forEach(s => {
+            const sVal = parseInt(s.getAttribute('data-value'));
+            if (sVal <= initialRating) {
+                s.classList.remove('bi-star');
+                s.classList.add('bi-star-fill', 'active');
+            } else {
+                s.classList.remove('bi-star-fill', 'active');
+                s.classList.add('bi-star');
+            }
+        });
+
         // Helper: HTML escape
         function escapeHtml(str) {
             if (!str) return '';
@@ -407,7 +435,75 @@
                 .replace(/'/g, '&#39;');
         }
 
-        // 3. Kakao Book Search
+        // 3. Draft Save
+        const btnSaveDraft = document.getElementById('btnSaveDraft');
+        const draftSaveStatus = document.getElementById('draftSaveStatus');
+        const inputDraftId = document.getElementById('inputDraftId');
+
+        function collectDraftData() {
+            return {
+                draftId: inputDraftId.value ? parseInt(inputDraftId.value) : null,
+                isbn: document.getElementById('inputIsbn').value,
+                title: document.getElementById('inputTitle').value,
+                author: document.getElementById('inputAuthor').value,
+                publisher: document.getElementById('inputPublisher').value,
+                coverImageUrl: document.getElementById('inputCoverImageUrl').value,
+                description: document.getElementById('inputDescription').value,
+                reviewerName: document.getElementById('ReviewerName').value,
+                rating: parseInt(document.getElementById('inputReviewRating').value) || 5,
+                summary: document.getElementById('Summary').value,
+                quote: document.getElementById('Quote').value,
+                content: document.getElementById('txtReviewContent').value,
+                readDate: document.getElementById('ReadDate').value || null
+            };
+        }
+
+        btnSaveDraft.addEventListener('click', async () => {
+            const draftData = collectDraftData();
+
+            if (!draftData.title) {
+                alert('임시 저장하려면 먼저 책을 검색하거나 직접 입력해 주세요.');
+                return;
+            }
+
+            const originalHtml = btnSaveDraft.innerHTML;
+            btnSaveDraft.disabled = true;
+            btnSaveDraft.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 저장 중...';
+            draftSaveStatus.innerHTML = '';
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const response = await fetch('/Books/SaveDraft', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(draftData)
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || '임시 저장에 실패했습니다.');
+                }
+
+                inputDraftId.value = result.data.draftId;
+                draftSaveStatus.innerHTML =
+                    '<span class="text-success"><i class="bi bi-check2-circle me-1"></i>' +
+                    escapeHtml(result.data.updatedAt) + ' 저장됨</span>';
+            } catch (error) {
+                console.error('임시 저장 오류:', error);
+                draftSaveStatus.innerHTML =
+                    '<span class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>' +
+                    escapeHtml(error.message || '저장 실패') + '</span>';
+            } finally {
+                btnSaveDraft.disabled = false;
+                btnSaveDraft.innerHTML = originalHtml;
+            }
+        });
+
+        // 4. Kakao Book Search
+
         const searchInput = document.getElementById('bookSearchInput');
         const btnSearch = document.getElementById('btnSearchBook');
         const resultsContainer = document.getElementById('searchResultsContainer');

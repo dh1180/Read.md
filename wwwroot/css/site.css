@@ -772,3 +772,14 @@ body {
   .hero-stats-card { margin-top: .5rem; }
   .feed-toolbar, .library-toolbar { padding: 1rem; }
 }
+
+
+.status-draft {
+  color: #8a6129;
+  background: #fff3d8;
+}
+
+.status-paused {
+  color: #6b6473;
+  background: #f0edf3;
+}
