@@ -304,7 +304,8 @@
 
         function updateMarkdownPreview() {
             const raw = txtReview.value.trim();
-            const safeRaw = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // Escape raw HTML opening syntax while preserving Markdown blockquote marker (>).
+            const safeRaw = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;');
             if (!raw) {
                 previewEmpty.style.display = 'block';
                 previewRendered.style.display = 'none';
