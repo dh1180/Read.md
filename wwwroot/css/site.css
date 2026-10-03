@@ -790,3 +790,663 @@ body {
 .comment-item { background: #fff; border-color: #ebe7de !important; }
 .comment-avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; background: #edf3ed; color: var(--primary); font-weight: 800; }
 .comment-content { color: #424a44; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+
+
+/* ==========================================================================
+   Mobile UX Optimization
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+  .navbar-custom .navbar-collapse {
+    margin-top: .65rem;
+    padding: .75rem 0 .25rem;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+
+  .navbar-custom .navbar-nav {
+    gap: .15rem;
+  }
+
+  .navbar-custom .nav-link {
+    padding: .7rem .25rem !important;
+    border-radius: 10px;
+  }
+
+  .mobile-nav-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: stretch !important;
+    padding-top: .5rem;
+  }
+
+  .mobile-nav-actions > .btn,
+  .mobile-nav-actions > a.btn {
+    flex: 1 1 calc(50% - .25rem);
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-nav-actions > .dropdown {
+    margin-left: 0 !important;
+    flex: 1 1 100%;
+  }
+
+  .mobile-nav-actions > .dropdown > button {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  .note-form-card.sticky-top {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    padding-top: 1rem !important;
+    padding-bottom: 2.5rem !important;
+    margin-top: 0 !important;
+  }
+
+  .app-shell,
+  .navbar-custom > .container {
+    padding-left: .9rem;
+    padding-right: .9rem;
+  }
+
+  .navbar-custom {
+    padding-top: .45rem !important;
+    padding-bottom: .45rem !important;
+  }
+
+  .navbar-brand {
+    margin-right: .25rem;
+  }
+
+  .brand-badge {
+    font-size: 1rem !important;
+  }
+
+  .navbar-toggler {
+    padding: .35rem .45rem;
+  }
+
+  /* Home */
+  .home-hero {
+    padding: 1.35rem !important;
+    border-radius: 18px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .home-hero .hero-pill {
+    font-size: .72rem;
+    margin-bottom: .8rem !important;
+  }
+
+  .home-hero h1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+    word-break: keep-all;
+    margin-bottom: .75rem !important;
+  }
+
+  .home-hero .hero-description {
+    font-size: .9rem;
+    line-height: 1.65;
+    margin-bottom: 1rem !important;
+    word-break: keep-all;
+  }
+
+  .home-hero .btn {
+    flex: 1 1 calc(50% - .25rem);
+    min-width: 0;
+    padding-left: .7rem !important;
+    padding-right: .7rem !important;
+    font-size: .86rem;
+  }
+
+  .feed-toolbar,
+  .library-toolbar {
+    border-radius: 14px;
+    padding: .95rem !important;
+  }
+
+  .feed-sort-tabs,
+  .library-status-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    padding-bottom: .2rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .feed-sort-tabs::-webkit-scrollbar,
+  .library-status-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .feed-sort-tabs .btn,
+  .library-status-tabs .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .mobile-search-group.input-group {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .mobile-search-group .form-control {
+    min-width: 0;
+  }
+
+  .mobile-search-group .btn {
+    padding-left: .85rem !important;
+    padding-right: .85rem !important;
+  }
+
+  .reading-card-body,
+  .library-card-body {
+    padding: 1rem !important;
+  }
+
+  .reading-card,
+  .library-card {
+    border-radius: 14px;
+  }
+
+  .book-summary-row {
+    padding: .6rem;
+    gap: .7rem !important;
+  }
+
+  .feed-cover {
+    width: 44px;
+    height: 62px;
+  }
+
+  .feed-quote {
+    font-size: .86rem;
+    line-height: 1.55;
+    margin-bottom: .8rem;
+  }
+
+  .review-excerpt {
+    font-size: .86rem;
+    -webkit-line-clamp: 4;
+  }
+
+  /* My library */
+  .library-page-heading {
+    margin-bottom: 1rem !important;
+  }
+
+  .library-page-heading h1 {
+    font-size: 1.5rem;
+  }
+
+  .library-heading-actions {
+    width: 100%;
+  }
+
+  .library-heading-actions .btn {
+    flex: 1;
+    min-height: 42px;
+  }
+
+  .library-cover {
+    width: 64px;
+    height: 92px;
+  }
+
+  .library-card .border-top .d-flex {
+    flex-wrap: wrap;
+  }
+
+  /* Review details */
+  .details-top-actions {
+    align-items: stretch !important;
+    gap: .6rem;
+    flex-direction: column;
+  }
+
+  .details-top-actions > a {
+    align-self: flex-start;
+  }
+
+  .details-top-actions > .d-flex {
+    width: 100%;
+  }
+
+  .details-top-actions > .d-flex .btn {
+    flex: 1;
+    padding-left: .7rem !important;
+    padding-right: .7rem !important;
+  }
+
+  .book-header-card .card-body,
+  .review-main-card .card-body,
+  .mobile-comments-section .card-body {
+    padding: 1rem !important;
+  }
+
+  .book-header-card .shelf-book-cover {
+    max-height: 190px !important;
+    max-width: 132px;
+  }
+
+  .book-header-card h2 {
+    font-size: 1.4rem;
+    line-height: 1.3;
+    word-break: keep-all;
+  }
+
+  .book-header-card .border-top {
+    gap: .55rem !important;
+    flex-direction: column;
+  }
+
+  .review-card-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: .75rem;
+    padding: 1rem !important;
+  }
+
+  .review-card-header > .d-flex:last-child {
+    width: 100%;
+    gap: .2rem !important;
+    flex-wrap: wrap;
+  }
+
+  .review-card-header > .d-flex:last-child i {
+    font-size: 1rem !important;
+  }
+
+  .review-card-header > .d-flex:last-child span {
+    font-size: .9rem !important;
+    margin-left: .35rem !important;
+  }
+
+  .quote-callout {
+    padding: .9rem !important;
+  }
+
+  .quote-callout h6,
+  .quote-callout p {
+    padding-left: 1.45rem !important;
+  }
+
+  .review-body-mobile {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+  }
+
+  .review-body-mobile .markdown-content {
+    font-size: .95rem !important;
+    line-height: 1.72 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .review-body-mobile .markdown-content blockquote {
+    padding: .75rem .8rem;
+    margin: .8rem 0;
+    font-size: .94rem;
+    line-height: 1.65;
+  }
+
+  .review-meta-actions {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: .65rem;
+  }
+
+  .review-meta-actions .btn-like-review {
+    width: 100%;
+    padding: .62rem .8rem !important;
+    font-size: .88rem;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .review-created-at {
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .reading-notes-section {
+    --bs-gutter-y: 1rem;
+  }
+
+  .note-form-card .card-header {
+    padding: 1rem !important;
+  }
+
+  .note-form-card .card-header h5 {
+    font-size: 1.05rem;
+  }
+
+  .note-form-card .card-body {
+    padding: 0 1rem 1rem !important;
+  }
+
+  .note-form-card .form-control,
+  .comment-compose .form-control {
+    font-size: 16px;
+  }
+
+  .note-form-card textarea {
+    min-height: 88px;
+  }
+
+  #noteLivePreview {
+    padding: .75rem !important;
+    min-height: 64px !important;
+  }
+
+  .notes-list-column > .d-flex h5 {
+    font-size: 1.05rem;
+  }
+
+  #notesContainer .card {
+    padding: .9rem !important;
+  }
+
+  .mobile-comments-section {
+    margin-top: 1rem !important;
+  }
+
+  .comment-compose {
+    padding: .8rem;
+  }
+
+  #btnSaveComment {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Create / edit review */
+  .create-review-page {
+    padding: .25rem 0 0 !important;
+  }
+
+  .create-review-page > .mb-4:first-child {
+    margin-bottom: 1rem !important;
+  }
+
+  .create-review-page > .mb-4.pb-3 {
+    margin-bottom: 1rem !important;
+  }
+
+  .create-review-page > .mb-4.pb-3 h2 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+  }
+
+  .review-form-card {
+    padding: 1rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .review-form-card h5 {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .book-section-heading {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: .65rem;
+  }
+
+  #btnToggleManualInput {
+    align-self: flex-end;
+    font-size: .8rem;
+  }
+
+  .create-book-search-group {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .create-book-search-group .form-control {
+    min-width: 0;
+  }
+
+  .create-book-search-group #btnSearchBook {
+    padding-left: .9rem !important;
+    padding-right: .9rem !important;
+  }
+
+  .selected-book-card > .d-flex {
+    align-items: flex-start !important;
+    gap: .75rem !important;
+  }
+
+  .selected-book-card > .d-flex > div:first-child {
+    width: 52px !important;
+    height: 74px !important;
+  }
+
+  .selected-book-card #btnChangeBook {
+    padding: .3rem .6rem !important;
+    font-size: .75rem;
+  }
+
+  .star-rating-picker {
+    gap: 2px;
+    font-size: 1.3rem !important;
+  }
+
+  #lblRatingDescription {
+    font-size: .76rem !important;
+  }
+
+  .template-toolbar {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: .2rem;
+    scrollbar-width: none;
+  }
+
+  .template-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .template-toolbar .template-btn,
+  .template-toolbar > span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .editor-toolbar {
+    align-items: flex-start !important;
+  }
+
+  #paneWrite textarea {
+    min-height: 320px;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  #panePreview {
+    padding: 1rem !important;
+    min-height: 220px !important;
+    max-height: 65vh !important;
+  }
+
+  #createReviewForm > .d-flex.flex-column.flex-sm-row {
+    gap: .7rem !important;
+  }
+
+  #createReviewForm > .d-flex.flex-column.flex-sm-row > a,
+  #createReviewForm > .d-flex.flex-column.flex-sm-row > .d-flex,
+  #createReviewForm > .d-flex.flex-column.flex-sm-row > .d-flex .btn {
+    width: 100%;
+  }
+
+  #createReviewForm > .d-flex.flex-column.flex-sm-row > .d-flex {
+    flex-direction: column;
+  }
+
+  /* Book search modal becomes bottom-sheet-like/full width */
+  #searchModal .search-modal-dialog {
+    margin: .5rem;
+    min-height: calc(100% - 1rem);
+  }
+
+  #searchModal .modal-content {
+    border-radius: 18px;
+    max-height: calc(100vh - 1rem);
+  }
+
+  #searchModal .modal-header {
+    padding: 1rem;
+  }
+
+  #searchModal .modal-body {
+    padding: .9rem;
+    max-height: none;
+  }
+
+  #searchModal .modal-header .text-muted {
+    display: none;
+  }
+
+  #searchModal .input-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .5rem;
+  }
+
+  #searchModal .search-input-box {
+    border-radius: 9999px !important;
+    min-width: 0;
+    padding: .6rem .85rem;
+  }
+
+  #searchModal .btn-search-pill {
+    margin-left: 0 !important;
+    padding: .6rem 1rem;
+  }
+
+  .search-book-card {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: start;
+    gap: .75rem;
+    padding: .85rem;
+  }
+
+  .search-book-cover {
+    width: 64px;
+    height: 90px;
+  }
+
+  .search-book-card > .d-flex.flex-column {
+    grid-column: 1 / -1;
+    flex-direction: row !important;
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  .search-book-card > .d-flex.flex-column .btn {
+    flex: 1;
+    min-width: 0;
+    padding: .5rem .55rem !important;
+    font-size: .8rem;
+  }
+
+  .search-book-desc {
+    -webkit-line-clamp: 2;
+  }
+
+  .search-modal-footer {
+    padding: .75rem .9rem !important;
+    gap: .5rem;
+  }
+
+  .search-modal-footer > span {
+    font-size: .72rem !important;
+  }
+
+  .search-modal-footer .btn {
+    flex-shrink: 0;
+  }
+
+  /* Touch targets */
+  .btn,
+  .form-control,
+  .form-select {
+    min-height: 42px;
+  }
+
+  .btn-sm {
+    min-height: 38px;
+  }
+
+  textarea.form-control {
+    min-height: auto;
+  }
+
+  .dropdown-menu {
+    max-width: calc(100vw - 1.8rem);
+  }
+
+  .pagination {
+    gap: .15rem;
+    flex-wrap: wrap;
+  }
+
+  .pagination .page-link {
+    padding: .45rem .65rem;
+  }
+}
+
+@media (max-width: 389.98px) {
+  .home-hero .btn {
+    flex-basis: 100%;
+  }
+
+  .mobile-nav-actions > .btn,
+  .mobile-nav-actions > a.btn {
+    flex-basis: 100%;
+  }
+
+  .details-top-actions > .d-flex {
+    flex-direction: column;
+  }
+
+  .create-book-search-group,
+  .mobile-search-group.input-group {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .create-book-search-group #btnSearchBook,
+  .mobile-search-group .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  #searchModal .input-group {
+    grid-template-columns: 1fr;
+  }
+
+  #searchModal .btn-search-pill {
+    width: 100%;
+  }
+}

@@ -54,7 +54,7 @@
 }
 </script>
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
+<div class="mb-4 d-flex justify-content-between align-items-center details-top-actions">
     <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
         <i class="bi bi-arrow-left me-1"></i> 모두의 독서록으로
     </a>
@@ -72,7 +72,7 @@
 </div>
 
 <!-- Book Header Card -->
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+<div class="card border-0 shadow-sm mb-4 book-header-card" style="border-radius: 16px;">
     <div class="card-body p-4 p-md-5">
         <div class="row g-4 align-items-start">
             <div class="col-md-3 text-center">
@@ -113,8 +113,8 @@
 </div>
 
 <!-- Reading Review Main Card -->
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
-    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+<div class="card border-0 shadow-sm mb-4 review-main-card" style="border-radius: 16px;">
+    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center review-card-header">
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-warning-subtle text-warning p-2 rounded-3">
                 <i class="bi bi-star-fill fs-5"></i>
@@ -167,7 +167,7 @@
         }
 
         <!-- Full Review Body (Markdown Rendered) -->
-        <div class="review-body p-4 my-3 bg-light rounded-4">
+        <div class="review-body p-4 my-3 bg-light rounded-4 review-body-mobile">
             <h6 class="fw-bold text-secondary mb-3 d-flex align-items-center gap-1" style="font-size: 0.85rem;">
                 <i class="bi bi-file-earmark-text text-primary me-1"></i> 상세 감상평
                 <span class="badge bg-primary-subtle text-primary small ms-auto fw-normal" style="font-size: 0.72rem;">Markdown</span>
@@ -177,23 +177,23 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4">
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4 review-meta-actions">
             <button type="button" class="btn btn-outline-danger rounded-pill px-4 py-2 btn-like-review" data-id="@Model.Id">
                 <i class="bi bi-heart-fill me-1"></i>
                 이 독서록에 공감해요 <strong class="like-count" id="like-count-@Model.Id">@Model.LikesCount</strong>
             </button>
-            <span class="text-muted small">작성일: @KoreaTime.FromUtc(Model.CreatedAt).ToString("yyyy.MM.dd HH:mm")</span>
+            <span class="text-muted small review-created-at">작성일: @KoreaTime.FromUtc(Model.CreatedAt).ToString("yyyy.MM.dd HH:mm")</span>
         </div>
     </div>
 </div>
 
 <!-- Reading Notes & Quotes Section -->
-<div class="row g-4">
+<div class="row g-4 reading-notes-section">
     <!-- Left: New Note Form with Live Markdown Preview -->
     @if (isOwner)
     {
-    <div class="col-lg-5">
-        <div class="card border-0 shadow-sm sticky-top" style="top: 80px; border-radius: 16px;">
+    <div class="col-lg-5 note-form-column">
+        <div class="card border-0 shadow-sm sticky-top note-form-card" style="top: 80px; border-radius: 16px;">
             <div class="card-header bg-white py-3 border-0">
                 <h5 class="fw-bold mb-0"><i class="bi bi-pencil-square text-success me-1"></i> 추가 메모 &amp; 필사 남기기</h5>
             </div>
@@ -238,7 +238,7 @@
     }
 
     <!-- Right: Notes Timeline -->
-    <div class="@(isOwner ? "col-lg-7" : "col-12")">
+    <div class="@(isOwner ? "col-lg-7" : "col-12") notes-list-column">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold mb-0">
                 <i class="bi bi-chat-left-quote-fill text-info me-1"></i> 추가 기록 목록 (<span id="notesCount">@Model.Notes.Count</span>)
@@ -291,7 +291,7 @@
 </div>
 
 <!-- Community Comments Section -->
-<section class="comments-section mt-5" aria-labelledby="commentsHeading">
+<section class="comments-section mt-5 mobile-comments-section" aria-labelledby="commentsHeading">
     <div class="card border-0 shadow-sm" style="border-radius: 16px;">
         <div class="card-body p-4 p-md-5">
             <div class="mb-4">

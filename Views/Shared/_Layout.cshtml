@@ -107,7 +107,7 @@
                             </a>
                         </li>
                     </ul>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2 mobile-nav-actions">
                         <a asp-controller="Books" asp-action="Create" class="btn btn-primary-gradient btn-sm px-3 py-2 shadow-sm fw-semibold">
                             <i class="bi bi-pencil-square me-1"></i> 독서록 쓰기
                         </a>
@@ -176,7 +176,7 @@
         </nav>
     </header>
 
-    <div class="container py-4 my-2">
+    <div class="container py-4 my-2 app-shell">
         @if (TempData["AuthSuccess"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4 border-0" role="alert">
@@ -199,7 +199,7 @@
 
     <!-- Global Book Search Modal -->
     <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable search-modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="d-flex align-items-center gap-2">
@@ -252,7 +252,7 @@
                         검색 가능한 결과를 모두 불러왔습니다.
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-0 py-3 px-4">
+                <div class="modal-footer bg-light border-0 py-3 px-4 search-modal-footer">
                     <span class="text-muted small me-auto"><i class="bi bi-lightning-charge-fill text-warning me-1"></i>도서 정보는 카카오 도서 검색을 통해 제공합니다.</span>
                     <button type="button" class="btn btn-outline-secondary btn-sm px-3 rounded-pill" data-bs-dismiss="modal">닫기</button>
                 </div>
