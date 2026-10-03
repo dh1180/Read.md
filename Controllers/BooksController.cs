@@ -164,6 +164,100 @@ public class BooksController : Controller
     }
 
     [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var reviewerName = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(reviewerName)) return Challenge();
+
+        var userBook = await _context.UserBooks
+            .Include(ub => ub.Book)
+            .FirstOrDefaultAsync(ub => ub.Id == id && ub.Status == ReadingStatus.Completed);
+
+        if (userBook == null || !IsOwner(userBook))
+        {
+            return NotFound();
+        }
+
+        var model = new CreateReviewRequest
+        {
+            EditId = userBook.Id,
+            Isbn = userBook.Book?.Isbn ?? string.Empty,
+            Title = userBook.Book?.Title ?? string.Empty,
+            Author = userBook.Book?.Author ?? string.Empty,
+            Publisher = userBook.Book?.Publisher ?? string.Empty,
+            CoverImageUrl = userBook.Book?.CoverImageUrl ?? string.Empty,
+            Description = userBook.Book?.Description ?? string.Empty,
+            ReviewerName = reviewerName,
+            Rating = userBook.Rating,
+            Summary = userBook.Summary,
+            Quote = userBook.Quote,
+            Content = userBook.Content ?? string.Empty,
+            ReadDate = userBook.ReadDate
+        };
+
+        return View("Create", model);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Edit(CreateReviewRequest request)
+    {
+        if (!request.EditId.HasValue)
+        {
+            return BadRequest();
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            ModelState.AddModelError("Title", "도서명을 입력하거나 도서를 검색해 선택해 주세요.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Content))
+        {
+            ModelState.AddModelError("Content", "독서 감상평 본문을 작성해 주세요.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View("Create", request);
+        }
+
+        var userBook = await _context.UserBooks
+            .Include(ub => ub.Book)
+            .FirstOrDefaultAsync(ub => ub.Id == request.EditId.Value && ub.Status == ReadingStatus.Completed);
+
+        if (userBook == null || !IsOwner(userBook))
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            var book = await FindOrCreateBookAsync(request);
+
+            userBook.BookId = book.Id;
+            userBook.Rating = Math.Clamp(request.Rating, 1, 5);
+            userBook.Summary = TrimTo(request.Summary, 200);
+            userBook.Quote = TrimTo(request.Quote, 500);
+            userBook.Content = TrimTo(request.Content, 4000);
+            userBook.ReadDate = request.ReadDate ?? userBook.ReadDate;
+            userBook.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            TempData["AuthSuccess"] = $"'{book.Title}' 독서록을 수정했습니다.";
+            return RedirectToAction(nameof(Details), new { id = userBook.Id });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "독서록 수정 중 오류 발생");
+            ModelState.AddModelError(string.Empty, "독서록 수정 중 오류가 발생했습니다.");
+            return View("Create", request);
+        }
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Create(CreateReviewRequest request)
     {

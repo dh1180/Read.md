@@ -143,6 +143,7 @@ else
                                 else if (item.Status == ReadingStatus.Completed && !string.IsNullOrWhiteSpace(item.Content))
                                 {
                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-soft rounded-pill px-3">기록 보기</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">수정</a>
                                 }
                                 else
                                 {

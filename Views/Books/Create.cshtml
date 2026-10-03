@@ -1,7 +1,8 @@
 @model ReadMeApp.Models.ViewModels.CreateReviewRequest
 @{
     var isDraft = Model.DraftId.HasValue;
-    ViewData["Title"] = isDraft ? "임시 저장 독서록 이어쓰기" : "새 독서록 작성";
+    var isEdit = Model.EditId.HasValue;
+    ViewData["Title"] = isEdit ? "독서록 수정" : (isDraft ? "임시 저장 독서록 이어쓰기" : "새 독서록 작성");
 }
 
 <div class="container py-4" style="max-width: 820px;">
@@ -14,13 +15,17 @@
 
     <!-- Header -->
     <div class="mb-4 pb-3 border-bottom">
-        <h2 class="fw-bold text-dark mb-1">@(isDraft ? "임시 저장 독서록 이어쓰기" : "새 독서록 작성하기")</h2>
+        <h2 class="fw-bold text-dark mb-1">@(isEdit ? "독서록 수정하기" : (isDraft ? "임시 저장 독서록 이어쓰기" : "새 독서록 작성하기"))</h2>
         <p class="text-muted small mb-0">
-            @(isDraft ? "저장해 둔 내용을 이어서 작성하고 완성되면 독서록을 등록해 보세요." : "읽은 책을 검색하고, 마음에 남은 생각과 문장을 자유롭게 기록해 보세요.")
+            @(isEdit
+                ? "기존 독서록의 내용을 수정하고 저장할 수 있습니다."
+                : (isDraft
+                    ? "저장해 둔 내용을 이어서 작성하고 완성되면 독서록을 등록해 보세요."
+                    : "읽은 책을 검색하고, 마음에 남은 생각과 문장을 자유롭게 기록해 보세요."))
         </p>
     </div>
 
-    <form asp-action="Create" method="post" id="createReviewForm">
+    <form action="@Url.Action(isEdit ? "Edit" : "Create", "Books")" method="post" id="createReviewForm">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small py-2"></div>
 
@@ -103,6 +108,7 @@
 
             <!-- Hidden Inputs Bound to Model -->
             <input type="hidden" asp-for="DraftId" id="inputDraftId" />
+            <input type="hidden" asp-for="EditId" id="inputEditId" />
             <input type="hidden" asp-for="Isbn" id="inputIsbn" />
             <input type="hidden" asp-for="Title" id="inputTitle" />
             <input type="hidden" asp-for="Author" id="inputAuthor" />
@@ -239,9 +245,18 @@
 
         <!-- Submit Bar -->
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 pt-2 mb-5">
-            <a asp-controller="Books" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
-                취소하고 내 기록으로
-            </a>
+            @if (isEdit)
+            {
+                <a asp-controller="Books" asp-action="Details" asp-route-id="@Model.EditId" class="btn btn-outline-secondary rounded-pill px-4">
+                    수정 취소
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Books" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                    취소하고 내 기록으로
+                </a>
+            }
             <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
                 <span id="draftSaveStatus" class="text-muted small">
                     @if (isDraft)
@@ -249,11 +264,14 @@
                         <span><i class="bi bi-check2 me-1"></i>임시 저장된 글</span>
                     }
                 </span>
-                <button type="button" id="btnSaveDraft" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
-                    <i class="bi bi-cloud-arrow-down me-1"></i> 임시 저장
-                </button>
+                @if (!isEdit)
+                {
+                    <button type="button" id="btnSaveDraft" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-cloud-arrow-down me-1"></i> 임시 저장
+                    </button>
+                }
                 <button type="submit" class="btn btn-primary-gradient rounded-pill px-5 py-2 fw-semibold shadow">
-                    <i class="bi bi-check2-circle me-1"></i> 독서록 등록하기
+                    <i class="bi bi-check2-circle me-1"></i> @(isEdit ? "수정 내용 저장" : "독서록 등록하기")
                 </button>
             </div>
         </div>
@@ -459,7 +477,7 @@
             };
         }
 
-        btnSaveDraft.addEventListener('click', async () => {
+        if (btnSaveDraft) btnSaveDraft.addEventListener('click', async () => {
             const draftData = collectDraftData();
 
             if (!draftData.title) {

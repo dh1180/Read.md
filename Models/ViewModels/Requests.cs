@@ -3,6 +3,7 @@ namespace ReadMeApp.Models.ViewModels;
 public class CreateReviewRequest
 {
     public int? DraftId { get; set; }
+    public int? EditId { get; set; }
     public string Isbn { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Author { get; set; } = string.Empty;
