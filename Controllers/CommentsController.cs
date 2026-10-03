@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ReadMeApp.Data;
 using ReadMeApp.Models;
 using ReadMeApp.Models.ViewModels;
+using ReadMeApp.Utilities;
 
 namespace ReadMeApp.Controllers;
 
@@ -50,7 +51,7 @@ public class CommentsController : Controller
             comment.Id,
             comment.AuthorName,
             comment.Content,
-            CreatedAt = comment.CreatedAt.ToString("yyyy.MM.dd HH:mm")
+            CreatedAt = KoreaTime.FromUtc(comment.CreatedAt).ToString("yyyy.MM.dd HH:mm")
         }, "댓글을 등록했습니다."));
     }
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ReadMeApp.Data;
 using ReadMeApp.Models;
 using ReadMeApp.Models.ViewModels;
+using ReadMeApp.Utilities;
 
 namespace ReadMeApp.Controllers;
 
@@ -373,7 +374,7 @@ public class BooksController : Controller
             return Json(ApiResponse<object>.Ok(new
             {
                 draftId = userBook.Id,
-                updatedAt = userBook.UpdatedAt.ToLocalTime().ToString("yyyy.MM.dd HH:mm")
+                updatedAt = KoreaTime.FromUtc(userBook.UpdatedAt).ToString("yyyy.MM.dd HH:mm")
             }, "임시 저장했습니다."));
         }
         catch (Exception ex)

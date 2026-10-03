@@ -1,5 +1,6 @@
 @model ReadMeApp.Models.UserBook
 @using ReadMeApp.Models
+@using ReadMeApp.Utilities
 @{
     var bookTitle = Model.Book?.Title ?? "도서 독서록";
     var bookAuthor = Model.Book?.Author ?? "저자 미상";
@@ -181,7 +182,7 @@
                 <i class="bi bi-heart-fill me-1"></i>
                 이 독서록에 공감해요 <strong class="like-count" id="like-count-@Model.Id">@Model.LikesCount</strong>
             </button>
-            <span class="text-muted small">작성일: @Model.CreatedAt.ToString("yyyy.MM.dd HH:mm")</span>
+            <span class="text-muted small">작성일: @KoreaTime.FromUtc(Model.CreatedAt).ToString("yyyy.MM.dd HH:mm")</span>
         </div>
     </div>
 </div>
@@ -262,7 +263,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="badge bg-primary rounded-pill px-2">p.@note.PageNumber</span>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="text-muted small">@note.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                                <span class="text-muted small">@KoreaTime.FromUtc(note.CreatedAt).ToString("yyyy-MM-dd HH:mm")</span>
                                 @if (isOwner)
                                 {
                                     <button type="button" class="btn btn-outline-danger btn-sm py-0 px-1 btn-delete-note" data-id="@note.Id" title="메모 삭제">
@@ -344,7 +345,7 @@
                                     <div class="comment-avatar">@(string.IsNullOrWhiteSpace(comment.AuthorName) ? "독" : comment.AuthorName[..1])</div>
                                     <div>
                                         <div class="fw-semibold small">@comment.AuthorName</div>
-                                        <div class="text-muted" style="font-size: .75rem;">@comment.CreatedAt.ToString("yyyy.MM.dd HH:mm")</div>
+                                        <div class="text-muted" style="font-size: .75rem;">@KoreaTime.FromUtc(comment.CreatedAt).ToString("yyyy.MM.dd HH:mm")</div>
                                     </div>
                                 </div>
                                 @if (isCommentOwner)

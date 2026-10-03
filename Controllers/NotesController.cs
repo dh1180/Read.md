@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ReadMeApp.Data;
 using ReadMeApp.Models;
 using ReadMeApp.Models.ViewModels;
+using ReadMeApp.Utilities;
 
 namespace ReadMeApp.Controllers;
 
@@ -52,7 +53,7 @@ public class NotesController : Controller
             note.Quote,
             note.Thought,
             ThoughtHtml = note.ThoughtHtml,
-            CreatedAt = note.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+            CreatedAt = KoreaTime.FromUtc(note.CreatedAt).ToString("yyyy-MM-dd HH:mm")
         }, "독서 메모가 저장되었습니다."));
     }
 
