@@ -45,4 +45,5 @@ public class UserBook
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public ReadingStatus Status { get; set; } = ReadingStatus.Completed;
     public ICollection<ReadingNote> Notes { get; set; } = new List<ReadingNote>();
+    public ICollection<ReviewComment> Comments { get; set; } = new List<ReviewComment>();
 }

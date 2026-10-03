@@ -85,6 +85,38 @@ using (var scope = app.Services.CreateScope())
                 BEGIN
                     ALTER TABLE [UserBooks] ALTER COLUMN [Content] nvarchar(max) NULL;
                 END
+
+                IF OBJECT_ID(N'[ReviewComments]', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE [ReviewComments] (
+                        [Id] int IDENTITY(1,1) NOT NULL,
+                        [UserBookId] int NOT NULL,
+                        [AuthorName] nvarchar(50) NOT NULL,
+                        [Content] nvarchar(1000) NOT NULL,
+                        [CreatedAt] datetime2 NOT NULL,
+                        CONSTRAINT [PK_ReviewComments] PRIMARY KEY ([Id]),
+                        CONSTRAINT [FK_ReviewComments_UserBooks_UserBookId]
+                            FOREIGN KEY ([UserBookId]) REFERENCES [UserBooks]([Id]) ON DELETE CASCADE
+                    );
+                    CREATE INDEX [IX_ReviewComments_UserBookId]
+                        ON [ReviewComments] ([UserBookId]);
+                END
+                """);
+        }
+        else if (context.Database.IsSqlite())
+        {
+            context.Database.ExecuteSqlRaw("""
+                CREATE TABLE IF NOT EXISTS "ReviewComments" (
+                    "Id" INTEGER NOT NULL CONSTRAINT "PK_ReviewComments" PRIMARY KEY AUTOINCREMENT,
+                    "UserBookId" INTEGER NOT NULL,
+                    "AuthorName" TEXT NOT NULL,
+                    "Content" TEXT NOT NULL,
+                    "CreatedAt" TEXT NOT NULL,
+                    CONSTRAINT "FK_ReviewComments_UserBooks_UserBookId"
+                        FOREIGN KEY ("UserBookId") REFERENCES "UserBooks" ("Id") ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS "IX_ReviewComments_UserBookId"
+                    ON "ReviewComments" ("UserBookId");
                 """);
         }
 

@@ -579,7 +579,7 @@ $(document).ready(function () {
                 .replace(/^### (.*$)/gim, '<h6>$1</h6>')
                 .replace(/^## (.*$)/gim, '<h5>$1</h5>')
                 .replace(/^# (.*$)/gim, '<h4>$1</h4>')
-                .replace(/^\> (.*$)/gim, '<blockquote class="blockquote small ps-2 border-start border-2">$1</blockquote>')
+                .replace(/^&gt;\s+(.*$)/gim, '<blockquote class="blockquote small ps-2 border-start border-2">$1</blockquote>')
                 .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/gim, '<em>$1</em>')
                 .replace(/\n/gim, '<br />');
@@ -682,6 +682,100 @@ $(document).ready(function () {
             error: function () {
                 showToast('메모 삭제에 실패했습니다.', false);
             }
+        });
+    });
+
+    // --- 6. Review Comments (Ajax) ---
+    var inputCommentContent = $('#inputCommentContent');
+    var commentCharCount = $('#commentCharCount');
+
+    if (inputCommentContent.length) {
+        inputCommentContent.on('input', function () {
+            commentCharCount.text($(this).val().length.toLocaleString());
+        });
+
+        $('#btnSaveComment').on('click', function () {
+            var userBookId = parseInt($('#commentUserBookId').val());
+            var content = inputCommentContent.val().trim();
+
+            if (!content) {
+                showToast('댓글 내용을 입력해 주세요.', false);
+                inputCommentContent.focus();
+                return;
+            }
+
+            var btn = $(this);
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> 등록 중...');
+
+            $.ajax({
+                url: '/Comments/Create',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ userBookId: userBookId, content: content }),
+                success: function (res) {
+                    btn.prop('disabled', false).html('<i class="bi bi-send me-1"></i> 댓글 등록');
+                    if (!res.success || !res.data) {
+                        showToast(res.message || '댓글 등록에 실패했습니다.', false);
+                        return;
+                    }
+
+                    inputCommentContent.val('');
+                    commentCharCount.text('0');
+                    $('#emptyCommentsPlaceholder').remove();
+
+                    var initial = res.data.authorName ? escapeHtml(res.data.authorName.substring(0, 1)) : '독';
+                    var newCommentHtml = `
+                        <div class="comment-item border rounded-3 p-3" id="comment-item-${res.data.id}">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="comment-avatar">${initial}</div>
+                                    <div>
+                                        <div class="fw-semibold small">${escapeHtml(res.data.authorName)}</div>
+                                        <div class="text-muted" style="font-size: .75rem;">${escapeHtml(res.data.createdAt)}</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-link text-danger p-1 btn-delete-comment"
+                                        data-id="${res.data.id}" title="댓글 삭제"><i class="bi bi-trash"></i></button>
+                            </div>
+                            <div class="comment-content mt-3">${escapeHtml(res.data.content).replace(/\n/g, '<br />')}</div>
+                        </div>`;
+
+                    $('#commentsContainer').prepend(newCommentHtml);
+                    $('#commentsCount').text((parseInt($('#commentsCount').text()) || 0) + 1);
+                    showToast(res.message, true);
+                },
+                error: function (xhr) {
+                    btn.prop('disabled', false).html('<i class="bi bi-send me-1"></i> 댓글 등록');
+                    showToast(xhr.status === 401 ? '댓글을 작성하려면 로그인이 필요합니다.' : '댓글 등록 중 오류가 발생했습니다.', false);
+                }
+            });
+        });
+    }
+
+    $(document).on('click', '.btn-delete-comment', function () {
+        if (!confirm('이 댓글을 삭제하시겠습니까?')) return;
+        var id = $(this).data('id');
+
+        $.ajax({
+            url: `/Comments/Delete?id=${id}`,
+            type: 'POST',
+            success: function (res) {
+                if (!res.success) {
+                    showToast(res.message || '댓글 삭제에 실패했습니다.', false);
+                    return;
+                }
+                $(`#comment-item-${id}`).fadeOut(200, function () {
+                    $(this).remove();
+                    var countEl = $('#commentsCount');
+                    var nextCount = Math.max(0, (parseInt(countEl.text()) || 0) - 1);
+                    countEl.text(nextCount);
+                    if (nextCount === 0) {
+                        $('#commentsContainer').html('<div id="emptyCommentsPlaceholder" class="text-center text-muted py-5"><i class="bi bi-chat-square-text fs-2 opacity-50"></i><p class="small mt-2 mb-0">아직 댓글이 없습니다. 첫 댓글을 남겨보세요.</p></div>');
+                    }
+                });
+                showToast(res.message, true);
+            },
+            error: function () { showToast('댓글 삭제 중 오류가 발생했습니다.', false); }
         });
     });
 

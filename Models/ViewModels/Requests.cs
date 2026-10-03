@@ -37,6 +37,15 @@ public class CreateNoteRequest
     public string Thought { get; set; } = string.Empty;
 }
 
+public class CreateCommentRequest
+{
+    public int UserBookId { get; set; }
+
+    [Required]
+    [MaxLength(1000, ErrorMessage = "댓글은 최대 1,000자까지 작성할 수 있습니다.")]
+    public string Content { get; set; } = string.Empty;
+}
+
 public class AddBookRequest
 {
     public string Isbn { get; set; } = string.Empty;

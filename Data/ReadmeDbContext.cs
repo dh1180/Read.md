@@ -12,6 +12,7 @@ public class ReadmeDbContext : DbContext
     public DbSet<Book> Books => Set<Book>();
     public DbSet<UserBook> UserBooks => Set<UserBook>();
     public DbSet<ReadingNote> ReadingNotes => Set<ReadingNote>();
+    public DbSet<ReviewComment> ReviewComments => Set<ReviewComment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +43,19 @@ public class ReadmeDbContext : DbContext
             entity.HasOne(rn => rn.UserBook)
                   .WithMany(ub => ub.Notes)
                   .HasForeignKey(rn => rn.UserBookId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ReviewComment>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.AuthorName).IsRequired().HasMaxLength(50);
+            entity.Property(c => c.Content).IsRequired().HasMaxLength(1000);
+            entity.HasIndex(c => c.UserBookId);
+
+            entity.HasOne(c => c.UserBook)
+                  .WithMany(ub => ub.Comments)
+                  .HasForeignKey(c => c.UserBookId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }

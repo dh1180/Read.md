@@ -156,6 +156,14 @@
 
 로그인 사용자는 자신의 독서 기록, 메모, 저장 도서를 관리할 수 있습니다.
 
+### 💬 댓글
+
+- 모든 방문자가 댓글 조회 가능
+- 로그인한 사용자만 댓글 작성 가능
+- 댓글 최대 1,000자
+- 최신 댓글 우선 표시
+- 작성자 본인만 댓글 삭제 가능
+
 ### ❤️ 공감
 
 다른 독자의 독서록에 공감을 남길 수 있습니다.
@@ -274,6 +282,7 @@ flowchart LR
 erDiagram
     BOOK ||--o{ USER_BOOK : has
     USER_BOOK ||--o{ READING_NOTE : contains
+    USER_BOOK ||--o{ REVIEW_COMMENT : receives
 
     BOOK {
         int Id PK
@@ -310,6 +319,14 @@ erDiagram
         string Thought
         datetime CreatedAt
     }
+
+    REVIEW_COMMENT {
+        int Id PK
+        int UserBookId FK
+        string AuthorName
+        string Content
+        datetime CreatedAt
+    }
 ```
 
 현재 카카오 로그인 정보는 Cookie Authentication의 Claims로 유지하며, 독서 기록의 작성자 소유권은 기존 `ReviewerName`과 로그인 사용자 이름을 기준으로 확인합니다.
@@ -328,6 +345,7 @@ Read.me/
 │   ├── BooksController.cs     # 독서 기록 CRUD / 공감
 │   ├── HomeController.cs      # 공개 독서록 피드 / SEO
 │   ├── NotesController.cs     # 독서 메모
+│   ├── CommentsController.cs  # 독서록 댓글
 │   └── SearchController.cs    # 카카오 도서 검색 / 책 저장
 ├── Data/
 │   └── ReadmeDbContext.cs     # EF Core DbContext
@@ -335,6 +353,7 @@ Read.me/
 │   ├── Book.cs
 │   ├── UserBook.cs
 │   ├── ReadingNote.cs
+│   ├── ReviewComment.cs
 │   ├── ReadingStatus.cs
 │   └── ViewModels/
 ├── Services/

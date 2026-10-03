@@ -783,3 +783,10 @@ body {
   color: #6b6473;
   background: #f0edf3;
 }
+
+
+/* Review comments */
+.comment-compose { padding: 1rem; border-radius: 14px; background: #faf9f5; border: 1px solid #ebe7de; }
+.comment-item { background: #fff; border-color: #ebe7de !important; }
+.comment-avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; background: #edf3ed; color: var(--primary); font-weight: 800; }
+.comment-content { color: #424a44; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }

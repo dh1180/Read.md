@@ -95,6 +95,7 @@ public class BooksController : Controller
         var userBook = await _context.UserBooks
             .Include(ub => ub.Book)
             .Include(ub => ub.Notes.OrderByDescending(n => n.CreatedAt))
+            .Include(ub => ub.Comments.OrderByDescending(c => c.CreatedAt))
             .FirstOrDefaultAsync(ub => ub.Id == id);
 
         if (userBook == null) return NotFound();
