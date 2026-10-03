@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ReadMeApp.Models.ViewModels;
 
 public class CreateReviewRequest
@@ -15,6 +17,7 @@ public class CreateReviewRequest
     public int Rating { get; set; } = 5;
     public string? Summary { get; set; }
     public string? Quote { get; set; }
+    [MaxLength(10000, ErrorMessage = "독서록 본문은 최대 10,000자까지 작성할 수 있습니다.")]
     public string Content { get; set; } = string.Empty;
     public DateTime? ReadDate { get; set; }
 }

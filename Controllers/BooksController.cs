@@ -10,6 +10,7 @@ namespace ReadMeApp.Controllers;
 public class BooksController : Controller
 {
     private const int PageSize = 12;
+    private const int MaxReviewContentLength = 10000;
     private readonly ReadmeDbContext _context;
     private readonly ILogger<BooksController> _logger;
 
@@ -217,6 +218,10 @@ public class BooksController : Controller
         {
             ModelState.AddModelError("Content", "독서 감상평 본문을 작성해 주세요.");
         }
+        else if (request.Content.Length > MaxReviewContentLength)
+        {
+            ModelState.AddModelError("Content", "독서록 본문은 최대 10,000자까지 작성할 수 있습니다.");
+        }
 
         if (!ModelState.IsValid)
         {
@@ -240,7 +245,7 @@ public class BooksController : Controller
             userBook.Rating = Math.Clamp(request.Rating, 1, 5);
             userBook.Summary = TrimTo(request.Summary, 200);
             userBook.Quote = TrimTo(request.Quote, 500);
-            userBook.Content = TrimTo(request.Content, 4000);
+            userBook.Content = TrimTo(request.Content, MaxReviewContentLength);
             userBook.ReadDate = request.ReadDate ?? userBook.ReadDate;
             userBook.UpdatedAt = DateTime.UtcNow;
 
@@ -273,6 +278,12 @@ public class BooksController : Controller
             return View(request);
         }
 
+        if (request.Content.Length > MaxReviewContentLength)
+        {
+            ModelState.AddModelError("Content", "독서록 본문은 최대 10,000자까지 작성할 수 있습니다.");
+            return View(request);
+        }
+
         try
         {
             var book = await FindOrCreateBookAsync(request);
@@ -298,6 +309,11 @@ public class BooksController : Controller
         if (request == null || string.IsNullOrWhiteSpace(request.Title))
         {
             return Json(ApiResponse<object>.Fail("임시 저장하려면 먼저 책을 선택해 주세요."));
+        }
+
+        if (request.Content.Length > MaxReviewContentLength)
+        {
+            return Json(ApiResponse<object>.Fail("독서록 본문은 최대 10,000자까지 임시 저장할 수 있습니다."));
         }
 
         try
@@ -346,7 +362,7 @@ public class BooksController : Controller
             userBook.Rating = Math.Clamp(request.Rating, 1, 5);
             userBook.Summary = TrimTo(request.Summary, 200);
             userBook.Quote = TrimTo(request.Quote, 500);
-            userBook.Content = TrimTo(request.Content, 4000);
+            userBook.Content = TrimTo(request.Content, MaxReviewContentLength);
             userBook.ReadDate = request.ReadDate ?? DateTime.Today;
             userBook.Status = ReadingStatus.Draft;
             userBook.UpdatedAt = DateTime.UtcNow;
@@ -378,6 +394,11 @@ public class BooksController : Controller
         if (string.IsNullOrWhiteSpace(request.Content))
         {
             return Json(ApiResponse<object>.Fail("독서록 본문을 작성해 주세요."));
+        }
+
+        if (request.Content.Length > MaxReviewContentLength)
+        {
+            return Json(ApiResponse<object>.Fail("독서록 본문은 최대 10,000자까지 작성할 수 있습니다."));
         }
 
         try
@@ -489,7 +510,7 @@ public class BooksController : Controller
         userBook.Rating = Math.Clamp(request.Rating, 1, 5);
         userBook.Summary = TrimTo(request.Summary, 200);
         userBook.Quote = TrimTo(request.Quote, 500);
-        userBook.Content = TrimTo(request.Content, 4000);
+        userBook.Content = TrimTo(request.Content, MaxReviewContentLength);
         userBook.ReadDate = request.ReadDate ?? DateTime.UtcNow;
         userBook.Status = ReadingStatus.Completed;
         userBook.UpdatedAt = DateTime.UtcNow;

@@ -228,9 +228,12 @@
 
             <!-- Write Mode Pane -->
             <div id="paneWrite">
-                <textarea asp-for="Content" id="txtReviewContent" class="form-control rounded-3" rows="12" 
+                <textarea asp-for="Content" id="txtReviewContent" class="form-control rounded-3" rows="12" maxlength="10000"
                           placeholder="책을 읽고 어떤 생각이 들었나요? 마크다운 문법(## 제목, **굵게**, > 인용구 등)을 사용해 자유롭게 작성하실 수 있습니다. 상단 [미리보기] 탭을 누르면 실시간으로 변환된 서식을 확인할 수 있습니다." required></textarea>
-                <span asp-validation-for="Content" class="text-danger small mt-1 d-block"></span>
+                <div class="d-flex justify-content-between align-items-center mt-1">
+                    <span asp-validation-for="Content" class="text-danger small"></span>
+                    <span class="text-muted small"><span id="contentCharCount">0</span> / 10,000자</span>
+                </div>
             </div>
 
             <!-- Live Markdown Preview Pane -->
@@ -362,7 +365,16 @@
         btnWrite.addEventListener('click', switchToWriteMode);
         btnPreview.addEventListener('click', switchToPreviewMode);
 
+        const contentCharCount = document.getElementById('contentCharCount');
+
+        function updateContentCharCount() {
+            contentCharCount.textContent = txtReview.value.length.toLocaleString();
+        }
+
+        updateContentCharCount();
+
         txtReview.addEventListener('input', () => {
+            updateContentCharCount();
             if (panePreview.style.display !== 'none') {
                 updateMarkdownPreview();
             }
@@ -378,6 +390,7 @@
                         return;
                     }
                     txtReview.value = '';
+                    updateContentCharCount();
                     updateMarkdownPreview();
                     switchToWriteMode();
                     return;
@@ -393,6 +406,7 @@
                     } else {
                         txtReview.value = templates[type];
                     }
+                    updateContentCharCount();
                     updateMarkdownPreview();
                     switchToWriteMode();
                 }

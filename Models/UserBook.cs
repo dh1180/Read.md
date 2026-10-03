@@ -22,7 +22,7 @@ public class UserBook
     [MaxLength(500)]
     public string? Quote { get; set; }
 
-    [MaxLength(4000)]
+    [MaxLength(10000)]
     public string? Content { get; set; }
 
     [NotMapped]

@@ -71,6 +71,23 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ReadmeDbContext>();
         context.Database.EnsureCreated();
 
+        if (context.Database.IsSqlServer())
+        {
+            context.Database.ExecuteSqlRaw("""
+                IF EXISTS (
+                    SELECT 1
+                    FROM sys.columns c
+                    INNER JOIN sys.tables t ON c.object_id = t.object_id
+                    WHERE t.name = 'UserBooks'
+                      AND c.name = 'Content'
+                      AND c.max_length <> -1
+                )
+                BEGIN
+                    ALTER TABLE [UserBooks] ALTER COLUMN [Content] nvarchar(max) NULL;
+                END
+                """);
+        }
+
         logger.LogInformation("데이터베이스 연결 및 초기화 확인 완료.");
     }
     catch (SqlException ex) { logger.LogWarning("MS SQL Server 연결 실패({Message}).", ex.Message); }
